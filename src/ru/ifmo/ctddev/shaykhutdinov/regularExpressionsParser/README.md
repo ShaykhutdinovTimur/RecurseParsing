@@ -9,4 +9,4 @@ Regular Expressions with the concatenation operator (simple sequential writes li
 * Use one terminal for all characters.
 
 Example:
-((aaa*a|a)*aa(aa|a*)a)*a
+( ( a b c * a | b) * a a ( b a | a * ) c ) * b
