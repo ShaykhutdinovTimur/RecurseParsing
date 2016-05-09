@@ -14,12 +14,33 @@ public class Parser {
             case OPEN_BRACKET:
             case CHARACTER:
                 Tree arg = C();
-                return new Tree("S", arg);
-            case CLOSE_BRACKET:
+                if (lex.curToken() == Token.END) {
+                    return new Tree("S", arg);
+                }
+                throw new AssertionError();
             case END:
                 return new Tree("S");
+            case CHOOSE:
+                throw new ParseException("| not expected at position ", lex.curPos());
+            case PLUS:
+                throw new ParseException("+ not expected at position ", lex.curPos());
+            case KLEENE_CLOSURE:
+                throw new ParseException("* not expected at position ", lex.curPos());
+            case CLOSE_BRACKET:
+                throw new ParseException(") not expected at position ", lex.curPos());
             default:
                 throw new AssertionError();
+        }
+    }
+
+    private Tree B() throws ParseException {
+        switch (lex.curToken()) {
+            case OPEN_BRACKET:
+            case CHARACTER:
+                Tree arg = C();
+                return new Tree("B", arg);
+            default:
+                return new Tree("B");
         }
     }
 
@@ -31,11 +52,10 @@ public class Parser {
             case CHOOSE:
                 Tree arg = Ccont();
                 return new Tree("S'", arg);
-            case CLOSE_BRACKET:
             case END:
                 return new Tree("S'");
             default:
-                throw new AssertionError();
+                return new Tree("S'");
         }
     }
 
@@ -56,6 +76,10 @@ public class Parser {
                 cont = C();
                 after = Scont();
                 return new Tree("C'", cont, after);
+            case CLOSE_BRACKET:
+                throw new ParseException(") not expected at position ", lex.curPos());
+            case PLUS:
+                throw new ParseException("+ not expected at position ", lex.curPos());
             default:
                 throw new AssertionError();
         }
@@ -70,13 +94,27 @@ public class Parser {
                     throw new ParseException(") expected at position ", lex.curPos());
                 }
                 lex.nextToken();
-                Tree cont = Scont();
-                return new Tree("C", new Tree("("), sub, new Tree(")"), cont);
+                if (lex.curToken() == Token.PLUS) {
+                    lex.nextToken();
+                    Tree cont = B();
+                    return new Tree("C", new Tree("("), sub, new Tree(")"), new Tree("+"), cont);
+                } else {
+                    Tree cont = Scont();
+                    return new Tree("C", new Tree("("), sub, new Tree(")"), cont);
+                }
             case CHARACTER:
                 String val = String.valueOf((char) lex.curToken().getValue());
                 lex.nextToken();
                 Tree s = Scont();
                 return new Tree("C", new Tree(val), s);
+            case CHOOSE:
+                throw new ParseException("| not expected at position ", lex.curPos());
+            case PLUS:
+                throw new ParseException("+ not expected at position ", lex.curPos());
+            case KLEENE_CLOSURE:
+                throw new ParseException("* not expected at position ", lex.curPos());
+            case CLOSE_BRACKET:
+                throw new ParseException(") not expected at position ", lex.curPos());
             default:
                 throw new AssertionError();
         }

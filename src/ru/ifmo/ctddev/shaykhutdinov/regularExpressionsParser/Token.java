@@ -5,7 +5,7 @@ package ru.ifmo.ctddev.shaykhutdinov.regularExpressionsParser;
  */
 
 public enum Token {
-    OPEN_BRACKET, CLOSE_BRACKET, KLEENE_CLOSURE, CHOOSE, CHARACTER, END;
+    OPEN_BRACKET, CLOSE_BRACKET, KLEENE_CLOSURE, CHOOSE, CHARACTER, END, PLUS;
 
     private int value;
 
